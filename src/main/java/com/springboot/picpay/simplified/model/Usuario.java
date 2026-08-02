@@ -24,9 +24,6 @@ public class Usuario {
     private String nome;
 
     @Column(nullable = false, unique = true)
-    private String cpf;
-
-    @Column(nullable = false, unique = true)
     private String email;
 
     @Column(nullable = false, unique = true)
