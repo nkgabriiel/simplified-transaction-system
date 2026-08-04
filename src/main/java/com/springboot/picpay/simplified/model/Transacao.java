@@ -21,11 +21,14 @@ public class Transacao {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private String remetente;
 
-    @Column(nullable = false)
-    private String destinatario;
+    @ManyToOne
+    @JoinColumn(name = "remetente_id", nullable = false)
+    private Usuario remetente;
+
+    @ManyToOne
+    @JoinColumn(name = "destinatario_id", nullable = false)
+    private Usuario destinatario;
 
     private BigDecimal valor;
     private LocalDateTime hora;

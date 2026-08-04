@@ -1,6 +1,6 @@
 package com.springboot.picpay.simplified.model;
 
-public enum tipoUsuario {
+public enum TipoUsuario {
     COMUM,
     LOJISTA
 }

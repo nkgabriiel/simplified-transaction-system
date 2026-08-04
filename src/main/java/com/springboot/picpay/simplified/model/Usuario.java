@@ -31,11 +31,12 @@ public class Usuario {
 
     private String password;
 
+    @Column(nullable = false)
     private BigDecimal saldo;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private tipoUsuario tipo;
+    private TipoUsuario tipo;
 
 
 }
