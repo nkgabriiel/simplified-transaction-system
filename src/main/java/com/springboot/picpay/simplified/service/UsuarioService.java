@@ -1,6 +1,7 @@
 package com.springboot.picpay.simplified.service;
 
 import com.springboot.picpay.simplified.dto.response.UsuarioResponseDTO;
+import com.springboot.picpay.simplified.exception.IneligibleSenderException;
 import com.springboot.picpay.simplified.exception.UsuarioNotFoundException;
 import com.springboot.picpay.simplified.model.TipoUsuario;
 import com.springboot.picpay.simplified.model.Usuario;
@@ -16,22 +17,27 @@ public class UsuarioService {
 
     private final UsuarioRepository repository;
 
-    public void validarTransferencia(Usuario remetente, BigDecimal saldo) throws Exception {
+    public void validarElegibilidadeDoRemetente(Usuario remetente, BigDecimal valorTransferencia) {
         if(remetente.getTipo() == TipoUsuario.LOJISTA) {
-            throw new Exception("Lojistas não podem realizar transações, apenas receber.");
+            throw new IneligibleSenderException("Lojistas não podem realizar transações, apenas receber.");
         }
 
-        if(remetente.getSaldo().compareTo(saldo) < 0) {
-            throw new Exception("Usuário deve ter saldo válido para realizar transações.");
+        if(remetente.getSaldo().compareTo(valorTransferencia) < 0) {
+            throw new IneligibleSenderException("Saldo do usuário insuficiente para realizar transação.");
         }
     }
 
-    public UsuarioResponseDTO findUsuarioById (Long id) {
+    public UsuarioResponseDTO findUsuarioResponseById (Long id) {
         Usuario usuarioEncontrado = repository.findById(id)
                 .orElseThrow(() -> new UsuarioNotFoundException(id));
 
         return toResponse(usuarioEncontrado);
 
+    }
+
+    public Usuario findUsuarioById (Long id) {
+        return repository.findById(id)
+                .orElseThrow(() -> new UsuarioNotFoundException(id));
     }
 
     private UsuarioResponseDTO toResponse (Usuario usuario) {
