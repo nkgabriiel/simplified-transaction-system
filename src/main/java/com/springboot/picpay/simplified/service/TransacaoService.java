@@ -1,6 +1,8 @@
 package com.springboot.picpay.simplified.service;
 
 import com.springboot.picpay.simplified.client.AutorizacaoClient;
+import com.springboot.picpay.simplified.client.NotificacaoClient;
+import com.springboot.picpay.simplified.dto.request.NotificacaoRequestDTO;
 import com.springboot.picpay.simplified.dto.request.TransacaoRequestDTO;
 import com.springboot.picpay.simplified.dto.response.TransacaoResponseDTO;
 import com.springboot.picpay.simplified.exception.SelfTransferNotAllowedException;
@@ -23,6 +25,7 @@ public class TransacaoService {
     private final TransacaoRepository transacaoRepository;
     private final UsuarioService usuarioService;
     private final AutorizacaoClient autorizacaoClient;
+    private final NotificacaoClient notificacaoClient;
 
     @Transactional
     public TransacaoResponseDTO gerarTransacao(TransacaoRequestDTO dto) {
@@ -48,6 +51,8 @@ public class TransacaoService {
 
         Transacao transacaoSalva = salvarTransacao(remetente, destinatario, dto.valor());
 
+        notificacaoClient.notificar(toNotificacaoRequest(destinatario, dto.valor(), remetente));
+
         return toResponse(transacaoSalva);
 
     }
@@ -70,6 +75,14 @@ public class TransacaoService {
                 transacao.getDestinatario().getId(),
                 transacao.getValor(),
                 transacao.getHora()
+        );
+    }
+
+    private NotificacaoRequestDTO toNotificacaoRequest(Usuario destinatario, BigDecimal valor, Usuario remetente) {
+        return new NotificacaoRequestDTO(
+                destinatario.getNome(),
+                valor,
+                remetente.getNome()
         );
     }
 
