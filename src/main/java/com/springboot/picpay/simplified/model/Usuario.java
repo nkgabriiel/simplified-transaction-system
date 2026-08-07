@@ -38,5 +38,8 @@ public class Usuario {
     @Column(nullable = false)
     private TipoUsuario tipo;
 
+    @Column(nullable = false)
+    private boolean ativo = true;
+
 
 }

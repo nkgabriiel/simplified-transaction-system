@@ -1,5 +1,7 @@
 package com.springboot.picpay.simplified.dto.response;
 
+import com.springboot.picpay.simplified.model.TipoUsuario;
+
 import java.math.BigDecimal;
 
 public record UsuarioResponseDTO(
@@ -8,6 +10,6 @@ public record UsuarioResponseDTO(
         String documento,
         String email,
         BigDecimal saldo,
-        String tipoUsuario
+        TipoUsuario tipoUsuario
 ) {
 }
