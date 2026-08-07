@@ -66,6 +66,18 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(body);
     }
 
+    @ExceptionHandler(InvalidUserRequestDataException.class)
+    public ResponseEntity<ErroResponseDTO> handleConflict(InvalidUserRequestDataException ex, HttpServletRequest request) {
+        ErroResponseDTO body = new ErroResponseDTO(
+                Instant.now().toString(),
+                HttpStatus.CONFLICT.value(),
+                HttpStatus.CONFLICT.getReasonPhrase(),
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErroResponseDTO> handleGeneric (Exception ex, HttpServletRequest request) {
         ErroResponseDTO body = new ErroResponseDTO(
