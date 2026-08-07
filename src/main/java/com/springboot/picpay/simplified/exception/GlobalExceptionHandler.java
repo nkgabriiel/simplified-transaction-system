@@ -29,7 +29,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler({
             IneligibleSenderException.class,
             InvalidTransactionValueException.class,
-            SelfTransferNotAllowedException.class
+            SelfTransferNotAllowedException.class,
+            InvalidDocumentException.class
     })
     public ResponseEntity<ErroResponseDTO> handleBadRequest(RuntimeException ex, HttpServletRequest request) {
         ErroResponseDTO body = new ErroResponseDTO(

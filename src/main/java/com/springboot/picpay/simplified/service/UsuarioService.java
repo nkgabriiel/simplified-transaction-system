@@ -3,6 +3,7 @@ package com.springboot.picpay.simplified.service;
 import com.springboot.picpay.simplified.dto.request.UsuarioRequestDTO;
 import com.springboot.picpay.simplified.dto.response.UsuarioResponseDTO;
 import com.springboot.picpay.simplified.exception.IneligibleSenderException;
+import com.springboot.picpay.simplified.exception.InvalidDocumentException;
 import com.springboot.picpay.simplified.exception.InvalidUserRequestDataException;
 import com.springboot.picpay.simplified.exception.UsuarioNotFoundException;
 import com.springboot.picpay.simplified.model.TipoUsuario;
@@ -31,6 +32,7 @@ public class UsuarioService {
     }
 
     public UsuarioResponseDTO criarUsuario(UsuarioRequestDTO dto) {
+        validarDocumento(dto.tipo(), dto.documento());
 
         if(usuarioRepository.existsByEmail(dto.email())) {
             throw new InvalidUserRequestDataException("Já existe um usuário com esse email");
@@ -66,6 +68,18 @@ public class UsuarioService {
     public Usuario findUsuarioById (Long id) {
         return usuarioRepository.findById(id)
                 .orElseThrow(() -> new UsuarioNotFoundException(id));
+    }
+
+    private void validarDocumento(TipoUsuario tipo, String documento) {
+        int tamanhoEsperado = switch (tipo) {
+            case COMUM -> 11;
+            case LOJISTA -> 14;
+        };
+
+        if(documento.length() != tamanhoEsperado) {
+            String tipoDocumento = tipo == TipoUsuario.COMUM ? "CPF" : "CNPJ";
+            throw new InvalidDocumentException(tipoDocumento + " deve conter " + tamanhoEsperado + " dígitos.");
+        }
     }
 
     private UsuarioResponseDTO toResponse (Usuario usuario) {
