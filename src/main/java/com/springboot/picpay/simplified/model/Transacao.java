@@ -30,6 +30,9 @@ public class Transacao {
     @JoinColumn(name = "destinatario_id", nullable = false)
     private Usuario destinatario;
 
+    @Column(nullable = false)
     private BigDecimal valor;
+
+    @Column(nullable = false)
     private LocalDateTime hora;
 }

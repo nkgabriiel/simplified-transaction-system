@@ -25,7 +25,7 @@ public class AutorizacaoClient {
                     && Boolean.TRUE.equals(response.data().authorization());
 
         } catch(RestClientException e) {
-            throw new UnavailableAuthorizerException("Não foi possível consultar os serviço de autorização", e);
+            throw new UnavailableAuthorizerException("Não foi possível consultar o serviço de autorização", e);
         }
     }
 }
