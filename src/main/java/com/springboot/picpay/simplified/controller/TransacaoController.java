@@ -18,7 +18,7 @@ public class TransacaoController {
 
     private final TransacaoService transacaoService;
 
-    @PostMapping("/transfer")
+    @PostMapping("/transferir")
     public ResponseEntity<TransacaoResponseDTO> criar(
             @RequestBody @Valid TransacaoRequestDTO dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(transacaoService.gerarTransacao(dto));
