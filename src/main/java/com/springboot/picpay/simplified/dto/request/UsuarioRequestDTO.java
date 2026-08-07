@@ -6,7 +6,6 @@ public record UsuarioRequestDTO(
         String nome,
         String email,
         String documento,
-        String password,
         BigDecimal saldo
 ) {
 }

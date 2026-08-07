@@ -29,7 +29,7 @@ public class Usuario {
     @Column(nullable = false, unique = true)
     private String documento;
 
-    private String password;
+//    private String password;
 
     @Column(nullable = false)
     private BigDecimal saldo;
