@@ -36,7 +36,7 @@ public class UsuarioServiceTest {
     private UsuarioService usuarioService;
 
     private Usuario primeiroUsuarioComum;
-    private Usuario segundoUsuarioComum;
+
     private Usuario usuarioLojista;
 
     @BeforeEach
@@ -49,15 +49,6 @@ public class UsuarioServiceTest {
         primeiroUsuarioComum.setSaldo(new BigDecimal("100.00"));
         primeiroUsuarioComum.setTipo(TipoUsuario.COMUM);
         primeiroUsuarioComum.setAtivo(true);
-
-        segundoUsuarioComum = new Usuario();
-        segundoUsuarioComum.setId(2L);
-        segundoUsuarioComum.setNome("Kaiser");
-        segundoUsuarioComum.setDocumento("98765432101");
-        segundoUsuarioComum.setEmail("Kaiser@email.com");
-        segundoUsuarioComum.setSaldo(BigDecimal.ZERO);
-        segundoUsuarioComum.setTipo(TipoUsuario.COMUM);
-        segundoUsuarioComum.setAtivo(true);
 
         usuarioLojista = new Usuario();
         usuarioLojista.setId(3L);
