@@ -34,7 +34,7 @@ public class TransacaoService {
         Usuario destinatario = usuarioService.findUsuarioById(dto.destinatarioId());
 
         if(dto.valor().compareTo(BigDecimal.ZERO) <= 0) {
-            throw new InvalidTransactionValueException(dto.valor());
+            throw new InvalidTransactionValueException("Insira um valor válido para a transferência: " + dto.valor());
         }
 
         if(remetente.getId().equals(destinatario.getId())) {

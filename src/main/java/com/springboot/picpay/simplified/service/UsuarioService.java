@@ -61,13 +61,13 @@ public class UsuarioService {
 
     public UsuarioResponseDTO findUsuarioResponseById (Long id) {
         Usuario usuarioEncontrado = usuarioRepository.findById(id)
-                .orElseThrow(() -> new UsuarioNotFoundException(id));
+                .orElseThrow(() -> new UsuarioNotFoundException("Usuário não foi encontrado com o id: " + id));
         return toResponse(usuarioEncontrado);
     }
 
     public Usuario findUsuarioById (Long id) {
         return usuarioRepository.findById(id)
-                .orElseThrow(() -> new UsuarioNotFoundException(id));
+                .orElseThrow(() -> new UsuarioNotFoundException("Usuário não foi encontrado com o id: " + id));
     }
 
     private void validarDocumento(TipoUsuario tipo, String documento) {
