@@ -65,10 +65,6 @@ public class TransacaoService {
                 .toList();
     }
 
-
-
-
-
     private Transacao salvarTransacao(Usuario remetente, Usuario destinatario, BigDecimal valor) {
             Transacao transacao = new Transacao();
             transacao.setRemetente(remetente);
@@ -91,9 +87,9 @@ public class TransacaoService {
 
     private NotificacaoRequestDTO toNotificacaoRequest(Usuario destinatario, BigDecimal valor, Usuario remetente) {
         return new NotificacaoRequestDTO(
+                remetente.getNome(),
                 destinatario.getNome(),
-                valor,
-                remetente.getNome()
+                valor
         );
     }
 
