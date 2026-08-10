@@ -192,6 +192,7 @@ public class TransacaoServiceTest {
         transacao.setValor(new BigDecimal("10.00"));
         transacao.setHora(LocalDateTime.now());
 
+        when(usuarioService.verificaExistenciaUsuario(1L)).thenReturn(true);
         when(transacaoRepository.findByRemetenteIdOrDestinatarioId(1L, 1L))
                 .thenReturn(List.of(transacao));
 
