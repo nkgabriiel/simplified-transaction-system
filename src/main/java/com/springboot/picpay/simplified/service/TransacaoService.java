@@ -1,7 +1,8 @@
 package com.springboot.picpay.simplified.service;
 
-import com.springboot.picpay.simplified.client.AutorizacaoClient;
-import com.springboot.picpay.simplified.client.NotificacaoClient;
+import com.springboot.picpay.simplified.client.autorizacao.AutorizacaoClient;
+import com.springboot.picpay.simplified.client.notificacao.NotificacaoClient;
+import com.springboot.picpay.simplified.client.notificacao.TransacaoRealizadaEvent;
 import com.springboot.picpay.simplified.dto.request.NotificacaoRequestDTO;
 import com.springboot.picpay.simplified.dto.request.TransacaoRequestDTO;
 import com.springboot.picpay.simplified.dto.response.TransacaoResponseDTO;
@@ -12,6 +13,7 @@ import com.springboot.picpay.simplified.model.Transacao;
 import com.springboot.picpay.simplified.model.Usuario;
 import com.springboot.picpay.simplified.repository.TransacaoRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,7 +28,7 @@ public class TransacaoService {
     private final TransacaoRepository transacaoRepository;
     private final UsuarioService usuarioService;
     private final AutorizacaoClient autorizacaoClient;
-    private final NotificacaoClient notificacaoClient;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     public TransacaoResponseDTO gerarTransacao(TransacaoRequestDTO dto) {
@@ -52,7 +54,7 @@ public class TransacaoService {
 
         Transacao transacaoSalva = salvarTransacao(remetente, destinatario, dto.valor());
 
-        notificacaoClient.notificar(toNotificacaoRequest(destinatario, dto.valor(), remetente));
+        eventPublisher.publishEvent(new TransacaoRealizadaEvent(toNotificacaoRequest(remetente, destinatario, dto.valor())));
 
         return toResponse(transacaoSalva);
 
@@ -85,7 +87,7 @@ public class TransacaoService {
         );
     }
 
-    private NotificacaoRequestDTO toNotificacaoRequest(Usuario destinatario, BigDecimal valor, Usuario remetente) {
+    private NotificacaoRequestDTO toNotificacaoRequest(Usuario remetente, Usuario destinatario, BigDecimal valor) {
         return new NotificacaoRequestDTO(
                 remetente.getNome(),
                 destinatario.getNome(),
