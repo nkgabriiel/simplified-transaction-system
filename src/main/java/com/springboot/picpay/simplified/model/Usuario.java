@@ -41,5 +41,6 @@ public class Usuario {
     @Column(nullable = false)
     private boolean ativo = true;
 
-
+    @Version
+    private Long version;
 }

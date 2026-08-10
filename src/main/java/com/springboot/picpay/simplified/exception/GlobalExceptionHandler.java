@@ -4,11 +4,11 @@ import com.springboot.picpay.simplified.dto.response.ErroResponseDTO;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.time.Instant;
 import java.util.stream.Collectors;
 
 @RestControllerAdvice
@@ -57,6 +57,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErroResponseDTO> handleConflict(InvalidUserRequestDataException ex, HttpServletRequest request) {
         return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body(ErroResponseDTO.of(HttpStatus.CONFLICT, ex.getMessage(), request.getRequestURI()));
+    }
+
+    @ExceptionHandler(ObjectOptimisticLockingFailureException.class)
+    public ResponseEntity<ErroResponseDTO> handleConcurrentConflict(ObjectOptimisticLockingFailureException ex, HttpServletRequest request) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(ErroResponseDTO.of(HttpStatus.CONFLICT, "O registro foi alterado por outra operação. Tente novamente.", request.getRequestURI()));
     }
 
     @ExceptionHandler(Exception.class)
