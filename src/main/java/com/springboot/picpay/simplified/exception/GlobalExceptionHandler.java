@@ -16,15 +16,8 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(UsuarioNotFoundException.class)
     public ResponseEntity<ErroResponseDTO> handleNotFound (UsuarioNotFoundException ex, HttpServletRequest request) {
-        ErroResponseDTO body = new ErroResponseDTO(
-                Instant.now().toString(),
-                HttpStatus.NOT_FOUND.value(),
-                HttpStatus.NOT_FOUND.getReasonPhrase(),
-                ex.getMessage(),
-                request.getRequestURI()
-        );
-
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(ErroResponseDTO.of(HttpStatus.NOT_FOUND, ex.getMessage(), request.getRequestURI()));
     }
 
     @ExceptionHandler({
@@ -34,38 +27,20 @@ public class GlobalExceptionHandler {
             InvalidDocumentException.class
     })
     public ResponseEntity<ErroResponseDTO> handleBadRequest(RuntimeException ex, HttpServletRequest request) {
-        ErroResponseDTO body = new ErroResponseDTO(
-                Instant.now().toString(),
-                HttpStatus.BAD_REQUEST.value(),
-                HttpStatus.BAD_REQUEST.getReasonPhrase(),
-                ex.getMessage(),
-                request.getRequestURI()
-        );
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(ErroResponseDTO.of(HttpStatus.BAD_REQUEST, ex.getMessage(), request.getRequestURI()));
     }
 
     @ExceptionHandler(UnauthorizedTransactionException.class)
     public ResponseEntity<ErroResponseDTO> handleUnauthorized(UnauthorizedTransactionException ex, HttpServletRequest request) {
-        ErroResponseDTO body = new ErroResponseDTO(
-                Instant.now().toString(),
-                HttpStatus.FORBIDDEN.value(),
-                HttpStatus.FORBIDDEN.getReasonPhrase(),
-                ex.getMessage(),
-                request.getRequestURI()
-        );
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(body);
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(ErroResponseDTO.of(HttpStatus.FORBIDDEN, ex.getMessage(), request.getRequestURI()));
     }
 
     @ExceptionHandler(UnavailableAuthorizerException.class)
     public ResponseEntity<ErroResponseDTO> handleUnavailable (UnavailableAuthorizerException ex, HttpServletRequest request) {
-        ErroResponseDTO body = new ErroResponseDTO(
-                Instant.now().toString(),
-                HttpStatus.SERVICE_UNAVAILABLE.value(),
-                HttpStatus.SERVICE_UNAVAILABLE.getReasonPhrase(),
-                ex.getMessage(),
-                request.getRequestURI()
-        );
-        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(body);
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
+                .body(ErroResponseDTO.of(HttpStatus.SERVICE_UNAVAILABLE, ex.getLocalizedMessage(), request.getRequestURI()));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -74,37 +49,19 @@ public class GlobalExceptionHandler {
                 .map(erro -> erro.getField() + ": " + erro.getDefaultMessage())
                 .collect(Collectors.joining("; "));
 
-        ErroResponseDTO body = new ErroResponseDTO(
-                Instant.now().toString(),
-                HttpStatus.BAD_REQUEST.value(),
-                HttpStatus.BAD_REQUEST.getReasonPhrase(),
-                message,
-                request.getRequestURI()
-        );
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(ErroResponseDTO.of(HttpStatus.BAD_REQUEST, message, request.getRequestURI()));
     }
 
     @ExceptionHandler(InvalidUserRequestDataException.class)
     public ResponseEntity<ErroResponseDTO> handleConflict(InvalidUserRequestDataException ex, HttpServletRequest request) {
-        ErroResponseDTO body = new ErroResponseDTO(
-                Instant.now().toString(),
-                HttpStatus.CONFLICT.value(),
-                HttpStatus.CONFLICT.getReasonPhrase(),
-                ex.getMessage(),
-                request.getRequestURI()
-        );
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(ErroResponseDTO.of(HttpStatus.CONFLICT, ex.getMessage(), request.getRequestURI()));
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErroResponseDTO> handleGeneric (Exception ex, HttpServletRequest request) {
-        ErroResponseDTO body = new ErroResponseDTO(
-                Instant.now().toString(),
-                HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(),
-                ex.getMessage(),
-                request.getRequestURI()
-        );
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ErroResponseDTO.of(HttpStatus.INTERNAL_SERVER_ERROR, "Erro interno do servidor, tente novamente", request.getRequestURI()));
     }
 }
