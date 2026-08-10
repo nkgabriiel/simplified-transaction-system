@@ -16,6 +16,7 @@ import tools.jackson.databind.ObjectMapper;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 
 import static org.mockito.ArgumentMatchers.any;
@@ -41,7 +42,7 @@ public class TransacaoControllerTest {
     @Test
     @DisplayName("Deve gerar uma transação com sucesso")
             void deveGerarTransacaoComSucesso() throws Exception {
-        TransacaoRequestDTO dto = new TransacaoRequestDTO(1L, 2L, new BigDecimal("10.00"));
+        TransacaoRequestDTO dto = new TransacaoRequestDTO(1L, 2L, new BigDecimal("10.00"), UUID.randomUUID());
         TransacaoResponseDTO response = new TransacaoResponseDTO(1L, 1L, 2L, new BigDecimal("10.00"), LocalDateTime.now());
 
         when(transacaoService.gerarTransacao(any())).thenReturn(response);
@@ -81,7 +82,7 @@ public class TransacaoControllerTest {
     @Test
     @DisplayName("Deve retornar erro quando valores preenchidos forem errados")
     void deveRetornarErroQuandoValoresErrados() throws Exception {
-        TransacaoRequestDTO dto = new TransacaoRequestDTO(1L, 2L, new BigDecimal("-100.00"));
+        TransacaoRequestDTO dto = new TransacaoRequestDTO(1L, 2L, new BigDecimal("-100.00"), UUID.randomUUID());
 
         mockMvc.perform(post("/api/transacoes/transferir")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -95,7 +96,7 @@ public class TransacaoControllerTest {
    @Test
    @DisplayName("Deve lançar exceção quando usuário não encontrado")
     void deveLancarExceptionQuandoUsuarioNaoEncontrado() throws Exception {
-        TransacaoRequestDTO dto = new TransacaoRequestDTO(1L, 2L, new BigDecimal("10.00"));
+        TransacaoRequestDTO dto = new TransacaoRequestDTO(1L, 2L, new BigDecimal("10.00"), UUID.randomUUID());
 
        when(transacaoService.gerarTransacao(dto)).thenThrow(new UsuarioNotFoundException("Usuário não foi encontrado com o id: 1"));
 
@@ -111,7 +112,7 @@ public class TransacaoControllerTest {
     @Test
     @DisplayName("Deve lançar exception quando usuário não autorizado tentar realizar transação")
     void deveLancarExceptionQuandoUsuarioNaoAutorizadoTransacao() throws Exception {
-        TransacaoRequestDTO dto = new TransacaoRequestDTO(1L, 2L, new BigDecimal("10.00"));
+        TransacaoRequestDTO dto = new TransacaoRequestDTO(1L, 2L, new BigDecimal("10.00"), UUID.randomUUID());
 
         when(transacaoService.gerarTransacao(dto)).thenThrow(new UnauthorizedTransactionException("Transação não autorizada."));
 
@@ -127,7 +128,7 @@ public class TransacaoControllerTest {
     @Test
     @DisplayName("Deve lançar exception quando autorizador não estiver disponível")
     void deveLancarExceptionQuandoAutorizadorIndisponivel() throws Exception {
-        TransacaoRequestDTO dto = new TransacaoRequestDTO(1L, 2L, new BigDecimal("10.00"));
+        TransacaoRequestDTO dto = new TransacaoRequestDTO(1L, 2L, new BigDecimal("10.00"), UUID.randomUUID());
 
         when(transacaoService.gerarTransacao(dto)).thenThrow(new UnavailableAuthorizerException("Não foi possível consultar o serviço de autorização", null));
 
@@ -143,7 +144,7 @@ public class TransacaoControllerTest {
     @Test
     @DisplayName("Deve lançar exception quando remetente inelegivel")
     void deveLancarExceptionQuandoRemetenteInelegivel() throws Exception {
-        TransacaoRequestDTO dto = new TransacaoRequestDTO(1L, 2L, new BigDecimal("10.00"));
+        TransacaoRequestDTO dto = new TransacaoRequestDTO(1L, 2L, new BigDecimal("10.00"), UUID.randomUUID());
 
         when(transacaoService.gerarTransacao(dto)).thenThrow(new IneligibleSenderException("Lojistas não podem realizar transações, apenas receber."));
 
@@ -159,7 +160,7 @@ public class TransacaoControllerTest {
     @Test
     @DisplayName("Deve lançar exception quando remetente for igual ao destinatário")
     void deveLancarExceptionQuandoRemetenteForIgualDestinatario() throws Exception {
-        TransacaoRequestDTO dto = new TransacaoRequestDTO(1L, 1L, new BigDecimal("10.00"));
+        TransacaoRequestDTO dto = new TransacaoRequestDTO(1L, 1L, new BigDecimal("10.00"), UUID.randomUUID());
 
         when(transacaoService.gerarTransacao(dto)).thenThrow(new SelfTransferNotAllowedException("Um usuário não pode realizar transferências para si mesmo."));
 

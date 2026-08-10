@@ -14,6 +14,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -73,6 +74,7 @@ public class TransacaoRepositoryTest {
         transacao.setRemetente(remetente);
         transacao.setDestinatario(destinatario);
         transacao.setValor(new BigDecimal(valor));
+        transacao.setIdempotencyKey(UUID.randomUUID());
         transacao.setHora(dataHora);
 
         return transacao;

@@ -1,7 +1,7 @@
 package com.springboot.picpay.simplified.service;
 
 import com.springboot.picpay.simplified.client.autorizacao.AutorizacaoClient;
-import com.springboot.picpay.simplified.client.notificacao.NotificacaoClient;
+import com.springboot.picpay.simplified.client.notificacao.TransacaoRealizadaEvent;
 import com.springboot.picpay.simplified.dto.request.TransacaoRequestDTO;
 import com.springboot.picpay.simplified.dto.response.TransacaoResponseDTO;
 import com.springboot.picpay.simplified.exception.*;
@@ -16,10 +16,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -36,7 +38,7 @@ public class TransacaoServiceTest {
     private UsuarioService usuarioService;
 
     @Mock
-    NotificacaoClient notificacaoClient;
+    private ApplicationEventPublisher eventPublisher;
 
     @Mock
     AutorizacaoClient autorizacaoClient;
@@ -63,7 +65,7 @@ public class TransacaoServiceTest {
     @Test
     @DisplayName("Deve lançar exception quando remetente não existir")
     void deveLancarExceptionQuandoRemetenteNaoExistir() {
-        TransacaoRequestDTO dto = new TransacaoRequestDTO(1L, 2L, new BigDecimal("100.00"));
+        TransacaoRequestDTO dto = new TransacaoRequestDTO(1L, 2L, new BigDecimal("100.00"), UUID.randomUUID());
         when(usuarioService.findUsuarioById(dto.remetenteId())).thenThrow(new UsuarioNotFoundException("Usuário não foi encontrado com o id: 1"));
 
         assertThatThrownBy(() -> transacaoService.gerarTransacao(dto))
@@ -71,13 +73,13 @@ public class TransacaoServiceTest {
 
         verify(usuarioService, never()).validarElegibilidadeDoRemetente(any(), any());
         verify(transacaoRepository, never()).save(any());
-        verify(notificacaoClient, never()).notificar(any());
+        verify(eventPublisher, never()).publishEvent(any());
     }
 
     @Test
     @DisplayName("Deve lançar exception quando valor inválido para transação")
     void deveLancarExceptionQuandoValorInvalido() {
-        TransacaoRequestDTO dto = new TransacaoRequestDTO(remetente.getId(), destinatario.getId(), new BigDecimal("0.00"));
+        TransacaoRequestDTO dto = new TransacaoRequestDTO(remetente.getId(), destinatario.getId(), new BigDecimal("0.00"), UUID.randomUUID());
 
         assertThatThrownBy(() -> transacaoService.gerarTransacao(dto))
                 .isInstanceOf(InvalidTransactionValueException.class)
@@ -85,13 +87,13 @@ public class TransacaoServiceTest {
 
         verify(usuarioService, never()).validarElegibilidadeDoRemetente(any(), any());
         verify(transacaoRepository, never()).save(any());
-        verify(notificacaoClient, never()).notificar(any());
+        verify(eventPublisher, never()).publishEvent(any());
     }
 
     @Test
     @DisplayName("Deve lançar exception quando usuário tentar transferir para si mesmo")
     void deveLancarExceptionQuandoAutoTransferencia() {
-        TransacaoRequestDTO dto = new TransacaoRequestDTO(1L, 1L, new BigDecimal("10.00"));
+        TransacaoRequestDTO dto = new TransacaoRequestDTO(1L, 1L, new BigDecimal("10.00"), UUID.randomUUID());
 
         when(usuarioService.findUsuarioById(1L)).thenReturn(remetente);
 
@@ -101,13 +103,13 @@ public class TransacaoServiceTest {
 
         verify(usuarioService, never()).validarElegibilidadeDoRemetente(any(), any());
         verify(transacaoRepository, never()).save(any());
-        verify(notificacaoClient, never()).notificar(any());
+        verify(eventPublisher, never()).publishEvent(any());
     }
 
     @Test
     @DisplayName("Deve lançar exception quando usuário for inelegível")
     void deveLancarExceptionQuandoUsuarioInelegivel() {
-        TransacaoRequestDTO dto = new TransacaoRequestDTO(1L, 2L, new BigDecimal("10.00"));
+        TransacaoRequestDTO dto = new TransacaoRequestDTO(1L, 2L, new BigDecimal("10.00"), UUID.randomUUID());
 
         when(usuarioService.findUsuarioById(1L)).thenReturn(remetente);
         when(usuarioService.findUsuarioById(2L)).thenReturn(destinatario);
@@ -119,13 +121,13 @@ public class TransacaoServiceTest {
                 .isInstanceOf(IneligibleSenderException.class);
 
         verify(transacaoRepository, never()).save(any());
-        verify(notificacaoClient, never()).notificar(any());
+        verify(eventPublisher, never()).publishEvent(any());
     }
 
     @Test
     @DisplayName("Deve lançar exception quando transação não autorizada")
     void deveLancarExceptionQuandoTransacaoNaoAutorizada() {
-        TransacaoRequestDTO dto = new TransacaoRequestDTO(1L, 2L, new BigDecimal("10.00"));
+        TransacaoRequestDTO dto = new TransacaoRequestDTO(1L, 2L, new BigDecimal("10.00"), UUID.randomUUID());
 
         when(usuarioService.findUsuarioById(1L)).thenReturn(remetente);
         when(usuarioService.findUsuarioById(2L)).thenReturn(destinatario);
@@ -136,13 +138,13 @@ public class TransacaoServiceTest {
                 .isInstanceOf(UnauthorizedTransactionException.class);
 
         verify(transacaoRepository, never()).save(any());
-        verify(notificacaoClient, never()).notificar(any());
+        verify(eventPublisher, never()).publishEvent(any());
     }
 
     @Test
     @DisplayName("Deve lançar exception quando autorizador não disponível")
     void deveLancarExceptionQuandoAutorizadorNaoDisponivel() {
-        TransacaoRequestDTO dto = new TransacaoRequestDTO(1L, 2L, new BigDecimal("10.00"));
+        TransacaoRequestDTO dto = new TransacaoRequestDTO(1L, 2L, new BigDecimal("10.00"), UUID.randomUUID());
 
         when(usuarioService.findUsuarioById(1L)).thenReturn(remetente);
         when(usuarioService.findUsuarioById(2L)).thenReturn(destinatario);
@@ -153,13 +155,13 @@ public class TransacaoServiceTest {
                 .isInstanceOf(UnavailableAuthorizerException.class);
 
         verify(transacaoRepository, never()).save(any());
-        verify(notificacaoClient, never()).notificar(any());
+        verify(eventPublisher, never()).publishEvent(any());
     }
 
     @Test
     @DisplayName("Deve lançar sucesso quando transação corretamente realizada")
     void deveLancarTransacaoCorretaComSucesso() {
-        TransacaoRequestDTO dto = new TransacaoRequestDTO(remetente.getId(), destinatario.getId(), new BigDecimal("10.00"));
+        TransacaoRequestDTO dto = new TransacaoRequestDTO(remetente.getId(), destinatario.getId(), new BigDecimal("10.00"), UUID.randomUUID());
 
         when(usuarioService.findUsuarioById(1L)).thenReturn(remetente);
         when(usuarioService.findUsuarioById(2L)).thenReturn(destinatario);
@@ -177,7 +179,7 @@ public class TransacaoServiceTest {
         assertThat(remetente.getSaldo()).isEqualByComparingTo(new BigDecimal("90.00"));
         assertThat(destinatario.getSaldo()).isEqualByComparingTo(new BigDecimal("10.00"));
 
-        verify(notificacaoClient, times(1)).notificar(any());
+        verify(eventPublisher, times(1)).publishEvent(any(TransacaoRealizadaEvent.class));
     }
 
     @Test
