@@ -4,6 +4,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 
 public record TransacaoRequestDTO(
         @NotNull(message = "Remetente é obrigatório")
@@ -14,6 +15,9 @@ public record TransacaoRequestDTO(
 
         @NotNull
         @Positive(message = "Valor deve ser positivo")
-        BigDecimal valor
+        BigDecimal valor,
+
+        @NotNull
+        UUID idempotencyKey
 ) {
 }

@@ -6,6 +6,7 @@ import com.springboot.picpay.simplified.client.notificacao.TransacaoRealizadaEve
 import com.springboot.picpay.simplified.dto.request.NotificacaoRequestDTO;
 import com.springboot.picpay.simplified.dto.request.TransacaoRequestDTO;
 import com.springboot.picpay.simplified.dto.response.TransacaoResponseDTO;
+import com.springboot.picpay.simplified.exception.ReutilizedIdempotencyKeyException;
 import com.springboot.picpay.simplified.exception.SelfTransferNotAllowedException;
 import com.springboot.picpay.simplified.exception.InvalidTransactionValueException;
 import com.springboot.picpay.simplified.exception.UnauthorizedTransactionException;
@@ -20,6 +21,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @AllArgsConstructor
@@ -32,6 +35,14 @@ public class TransacaoService {
 
     @Transactional
     public TransacaoResponseDTO gerarTransacao(TransacaoRequestDTO dto) {
+        Optional<Transacao> transacaoExistente = verificarIdempotencyKey(dto.idempotencyKey());
+
+        if(transacaoExistente.isPresent()) {
+            Transacao transacao = transacaoExistente.get();
+
+            validarMesmaRequisicao(transacao, dto);
+            return toResponse(transacaoExistente.get());
+        }
         Usuario remetente = usuarioService.findUsuarioById(dto.remetenteId());
         Usuario destinatario = usuarioService.findUsuarioById(dto.destinatarioId());
 
@@ -52,7 +63,7 @@ public class TransacaoService {
         remetente.setSaldo(remetente.getSaldo().subtract(dto.valor()));
         destinatario.setSaldo(destinatario.getSaldo().add(dto.valor()));
 
-        Transacao transacaoSalva = salvarTransacao(remetente, destinatario, dto.valor());
+        Transacao transacaoSalva = salvarTransacao(remetente, destinatario, dto.valor(), dto.idempotencyKey());
 
         eventPublisher.publishEvent(new TransacaoRealizadaEvent(toNotificacaoRequest(remetente, destinatario, dto.valor())));
 
@@ -67,14 +78,30 @@ public class TransacaoService {
                 .toList();
     }
 
-    private Transacao salvarTransacao(Usuario remetente, Usuario destinatario, BigDecimal valor) {
+    private Transacao salvarTransacao(Usuario remetente, Usuario destinatario, BigDecimal valor, UUID idempotencyKey) {
             Transacao transacao = new Transacao();
             transacao.setRemetente(remetente);
             transacao.setDestinatario(destinatario);
             transacao.setValor(valor);
+            transacao.setIdempotencyKey(idempotencyKey);
             transacao.setHora(LocalDateTime.now());
 
         return transacaoRepository.save(transacao);
+    }
+
+    private Optional<Transacao> verificarIdempotencyKey(UUID idempotencyKey) {
+        return transacaoRepository.findByIdempotencyKey(idempotencyKey);
+    }
+
+    private void validarMesmaRequisicao(Transacao transacao, TransacaoRequestDTO dto) {
+        boolean mesmaRequisicao =
+                transacao.getRemetente().getId().equals(dto.remetenteId())
+                && transacao.getDestinatario().getId().equals(dto.destinatarioId())
+                && transacao.getValor().compareTo(dto.valor()) == 0;
+
+        if(!mesmaRequisicao) {
+            throw new ReutilizedIdempotencyKeyException("A chave de idempotência já foi utilizada.");
+        }
     }
 
     private TransacaoResponseDTO toResponse(Transacao transacao) {
