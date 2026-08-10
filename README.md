@@ -31,8 +31,8 @@ O projeto foi construído com foco em regras de negócio de um sistema financeir
 ## 1. Clone o repositório
 
 ```bash
-git clone https://github.com/nkgabriiel/simplified-transcation-system.git
-cd simplified-transcation-system
+git clone https://github.com/nkgabriiel/simplified-transaction-system.git
+cd simplified-transaction-system
 ```
 
 ## 2. Execute a aplicação
