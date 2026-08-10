@@ -53,8 +53,11 @@ public class GlobalExceptionHandler {
                 .body(ErroResponseDTO.of(HttpStatus.BAD_REQUEST, message, request.getRequestURI()));
     }
 
-    @ExceptionHandler(InvalidUserRequestDataException.class)
-    public ResponseEntity<ErroResponseDTO> handleConflict(InvalidUserRequestDataException ex, HttpServletRequest request) {
+    @ExceptionHandler({
+            InvalidUserRequestDataException.class,
+            ReutilizedIdempotencyKeyException.class
+    })
+    public ResponseEntity<ErroResponseDTO> handleConflict(RuntimeException ex, HttpServletRequest request) {
         return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body(ErroResponseDTO.of(HttpStatus.CONFLICT, ex.getMessage(), request.getRequestURI()));
     }
