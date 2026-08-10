@@ -5,10 +5,7 @@ import com.springboot.picpay.simplified.client.notificacao.TransacaoRealizadaEve
 import com.springboot.picpay.simplified.dto.request.NotificacaoRequestDTO;
 import com.springboot.picpay.simplified.dto.request.TransacaoRequestDTO;
 import com.springboot.picpay.simplified.dto.response.TransacaoResponseDTO;
-import com.springboot.picpay.simplified.exception.ReutilizedIdempotencyKeyException;
-import com.springboot.picpay.simplified.exception.SelfTransferNotAllowedException;
-import com.springboot.picpay.simplified.exception.InvalidTransactionValueException;
-import com.springboot.picpay.simplified.exception.UnauthorizedTransactionException;
+import com.springboot.picpay.simplified.exception.*;
 import com.springboot.picpay.simplified.model.Transacao;
 import com.springboot.picpay.simplified.model.Usuario;
 import com.springboot.picpay.simplified.repository.TransacaoRepository;
@@ -77,6 +74,11 @@ public class TransacaoService {
     }
 
     public List<TransacaoResponseDTO> listarTodasPorUsuario (Long id) {
+
+        if(!usuarioService.verificaExistenciaUsuario(id)) {
+            throw new UsuarioNotFoundException("Usuário não foi encontrado com o id: " + id);
+        }
+
         return transacaoRepository.findByRemetenteIdOrDestinatarioId(id, id)
                 .stream()
                 .map(this::toResponse)

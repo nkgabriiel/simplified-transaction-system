@@ -70,6 +70,10 @@ public class UsuarioService {
                 .orElseThrow(() -> new UsuarioNotFoundException("Usuário não foi encontrado com o id: " + id));
     }
 
+    public boolean verificaExistenciaUsuario(Long id) {
+        return usuarioRepository.existsById(id);
+    }
+
     private void validarDocumento(TipoUsuario tipo, String documento) {
         int tamanhoEsperado = switch (tipo) {
             case COMUM -> 11;
