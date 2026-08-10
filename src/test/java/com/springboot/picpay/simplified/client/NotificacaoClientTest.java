@@ -1,6 +1,7 @@
 package com.springboot.picpay.simplified.client;
 
 
+import com.springboot.picpay.simplified.client.notificacao.NotificacaoClient;
 import com.springboot.picpay.simplified.dto.request.NotificacaoRequestDTO;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;

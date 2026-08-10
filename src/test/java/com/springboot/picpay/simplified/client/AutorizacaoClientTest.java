@@ -1,5 +1,6 @@
 package com.springboot.picpay.simplified.client;
 
+import com.springboot.picpay.simplified.client.autorizacao.AutorizacaoClient;
 import com.springboot.picpay.simplified.exception.UnavailableAuthorizerException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;

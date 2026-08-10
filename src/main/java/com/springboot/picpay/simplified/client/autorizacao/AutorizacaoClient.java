@@ -1,4 +1,4 @@
-package com.springboot.picpay.simplified.client;
+package com.springboot.picpay.simplified.client.autorizacao;
 
 import com.springboot.picpay.simplified.dto.response.AutorizacaoResponseDTO;
 import com.springboot.picpay.simplified.exception.UnavailableAuthorizerException;

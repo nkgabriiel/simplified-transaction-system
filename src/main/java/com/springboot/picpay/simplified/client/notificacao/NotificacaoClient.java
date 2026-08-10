@@ -1,4 +1,4 @@
-package com.springboot.picpay.simplified.client;
+package com.springboot.picpay.simplified.client.notificacao;
 
 import com.springboot.picpay.simplified.dto.request.NotificacaoRequestDTO;
 import lombok.RequiredArgsConstructor;

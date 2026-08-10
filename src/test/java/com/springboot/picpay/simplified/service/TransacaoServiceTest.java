@@ -1,7 +1,7 @@
 package com.springboot.picpay.simplified.service;
 
-import com.springboot.picpay.simplified.client.AutorizacaoClient;
-import com.springboot.picpay.simplified.client.NotificacaoClient;
+import com.springboot.picpay.simplified.client.autorizacao.AutorizacaoClient;
+import com.springboot.picpay.simplified.client.notificacao.NotificacaoClient;
 import com.springboot.picpay.simplified.dto.request.TransacaoRequestDTO;
 import com.springboot.picpay.simplified.dto.response.TransacaoResponseDTO;
 import com.springboot.picpay.simplified.exception.*;
@@ -23,7 +23,6 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.Mockito.*;
 
 
