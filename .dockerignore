@@ -1,0 +1,19 @@
+# Version control
+.git
+.gitignore
+
+# Logs and secrets
+*.log
+.env
+.env.*
+*.key
+*.pem
+
+# IDEs and editors
+.vscode/
+.idea/
+.project
+*.swp
+
+# Build directories
+target/
