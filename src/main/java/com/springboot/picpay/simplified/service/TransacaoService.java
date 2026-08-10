@@ -1,7 +1,6 @@
 package com.springboot.picpay.simplified.service;
 
 import com.springboot.picpay.simplified.client.autorizacao.AutorizacaoClient;
-import com.springboot.picpay.simplified.client.notificacao.NotificacaoClient;
 import com.springboot.picpay.simplified.client.notificacao.TransacaoRealizadaEvent;
 import com.springboot.picpay.simplified.dto.request.NotificacaoRequestDTO;
 import com.springboot.picpay.simplified.dto.request.TransacaoRequestDTO;
@@ -14,6 +13,7 @@ import com.springboot.picpay.simplified.model.Transacao;
 import com.springboot.picpay.simplified.model.Usuario;
 import com.springboot.picpay.simplified.repository.TransacaoRepository;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @AllArgsConstructor
 public class TransacaoService {
@@ -35,9 +36,11 @@ public class TransacaoService {
 
     @Transactional
     public TransacaoResponseDTO gerarTransacao(TransacaoRequestDTO dto) {
+        log.info("Gerando transação: remetente={}, destinatario={}, valor={}", dto.remetenteId(), dto.destinatarioId(), dto.valor());
         Optional<Transacao> transacaoExistente = verificarIdempotencyKey(dto.idempotencyKey());
 
         if(transacaoExistente.isPresent()) {
+            log.warn("Chave de idempotência reutilizada: {}. devolvendo resultado..", dto.idempotencyKey());
             Transacao transacao = transacaoExistente.get();
 
             validarMesmaRequisicao(transacao, dto);
@@ -54,6 +57,7 @@ public class TransacaoService {
             throw new SelfTransferNotAllowedException("Um usuário não pode realizar transferências para si mesmo.");
         }
 
+
         usuarioService.validarElegibilidadeDoRemetente(remetente, dto.valor());
 
         if(!autorizacaoClient.autorizar()) {
@@ -64,6 +68,7 @@ public class TransacaoService {
         destinatario.setSaldo(destinatario.getSaldo().add(dto.valor()));
 
         Transacao transacaoSalva = salvarTransacao(remetente, destinatario, dto.valor(), dto.idempotencyKey());
+        log.info("Transação concluída: transacaoId={}", transacaoSalva.getId());
 
         eventPublisher.publishEvent(new TransacaoRealizadaEvent(toNotificacaoRequest(remetente, destinatario, dto.valor())));
 
